@@ -16,7 +16,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="dark h-screen">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -26,5 +26,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <main className="pt-12 h-full">
+      <Outlet />
+    </main>
+  );
 }
