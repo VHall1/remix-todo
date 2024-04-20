@@ -13,6 +13,10 @@ export function TodoItem({ todo }: { todo: SerializeFrom<Todo> }) {
   const toggleFormId = `toggle-form-${todo.id}`;
   const deleteFormId = `delete-form-${todo.id}`;
 
+  const completed = toggleFetcher.formData
+    ? toggleFetcher.formData.get("next") === "true"
+    : todo.completed;
+
   return (
     <>
       <toggleFetcher.Form id={toggleFormId} method="post" />
@@ -23,7 +27,7 @@ export function TodoItem({ todo }: { todo: SerializeFrom<Todo> }) {
       <input
         type="hidden"
         name="next"
-        value={(!todo.completed).toString()}
+        value={(!completed).toString()}
         form={toggleFormId}
       />
 
@@ -31,12 +35,12 @@ export function TodoItem({ todo }: { todo: SerializeFrom<Todo> }) {
         <label
           htmlFor={`task-${todo.id}`}
           className={cn("flex items-center flex-1", {
-            "line-through": todo.completed,
+            "line-through": completed,
           })}
         >
           <Checkbox
             id={`task-${todo.id}`}
-            defaultChecked={todo.completed}
+            defaultChecked={completed}
             className="mr-2"
             type="submit"
             form={toggleFormId}
