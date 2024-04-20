@@ -48,7 +48,7 @@ jobs:
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           GIT_REVISION: $GITHUB_SHA
         run: |
-          pm2 start pm2.config.js
+          pm2 start pm2.config.cjs
 
       - name: Send discord notification
         env:
