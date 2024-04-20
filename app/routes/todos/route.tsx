@@ -62,18 +62,17 @@ export const loader = async () => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // TODO: validate input
   const formData = await request.formData();
 
   const intent = formData.get("intent");
   switch (intent) {
     case "toggle": {
       const id = formData.get("id")?.toString();
-      await prisma.todo.update({
+      const todo = await prisma.todo.update({
         where: { id },
         data: { completed: formData.get("next") === "true" },
       });
-      return json({ ok: true });
+      return json({ todo });
     }
     case "create": {
       const content = formData.get("content")?.toString() || "";
@@ -85,6 +84,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       await prisma.todo.delete({ where: { id } });
       return new Response(undefined, { status: 204 });
     }
+    default:
+      return new Response(undefined, { status: 422 });
   }
 
   return null;
