@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "remix",
+      name: "remix-todo",
       script: "npm",
       args: "start",
       autorestart: true,
