@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData, useLocation } from "@remix-run/react";
 import { Fragment } from "react";
 import { Button } from "~/components/ui/button";
@@ -11,6 +11,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Toggle } from "~/components/ui/toggle";
 import { prisma } from "~/services/database.server";
+import { requireUserId } from "~/services/session.server";
 import { TodoItem } from "./todo-item";
 import { Filter } from "./types";
 
@@ -78,14 +79,19 @@ export default function Todos() {
   );
 }
 
-export const loader = async () => {
-  const todos = await prisma.todo.findMany();
-  const itemsLeft = todos.filter((todo) => !todo.completed).length;
+// TODO: add pagination
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const userId = await requireUserId(request);
+  const todos = await prisma.todo.findMany({ where: { userId } });
+  const itemsLeft = await prisma.todo.count({
+    where: { userId, completed: false },
+  });
 
   return json({ todos, itemsLeft });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const userId = await requireUserId(request);
   const formData = await request.formData();
 
   const intent = formData.get("intent");
@@ -93,23 +99,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case "toggle": {
       const id = formData.get("id")?.toString();
       const todo = await prisma.todo.update({
-        where: { id },
+        where: { id, userId },
         data: { completed: formData.get("next") === "true" },
       });
       return json({ todo });
     }
     case "create": {
       const content = formData.get("content")?.toString() || "";
-      const todo = await prisma.todo.create({ data: { content } });
+      const todo = await prisma.todo.create({ data: { userId, content } });
       return json({ todo }, 201);
     }
     case "delete": {
       const id = formData.get("id")?.toString();
-      await prisma.todo.delete({ where: { id } });
+      await prisma.todo.delete({ where: { id, userId } });
       return new Response(undefined, { status: 204 });
     }
     case "clearCompleted": {
-      await prisma.todo.deleteMany({ where: { completed: true } });
+      await prisma.todo.deleteMany({ where: { userId, completed: true } });
       return new Response(undefined, { status: 204 });
     }
     default:
