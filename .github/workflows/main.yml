@@ -46,7 +46,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-          GIT_REVISION: ${{ GITHUB_SHA }}
+          GIT_REVISION: $GITHUB_SHA
         run: |
           pm2 start pm2.config.js
 
