@@ -7,30 +7,33 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
+import { ReactNode } from "react";
+import { createHead } from "remix-island";
 import { getUser } from "./services/session.server";
 import "./tailwind.css";
-import React from "react";
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export const Head = createHead(() => (
+  <>
+    <meta charSet="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Meta />
+    <Links />
+  </>
+));
+
+export function Layout({ children }: { children: ReactNode }) {
   const { sha } = useLoaderData<typeof loader>();
 
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body className="dark h-screen">
-        <div id="git-revision" className="hidden">
-          {sha}
-        </div>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+    <>
+      <Head />
+      <div id="git-revision" className="hidden">
+        {sha}
+      </div>
+      {children}
+      <ScrollRestoration />
+      <Scripts />
+    </>
   );
 }
 
