@@ -5,10 +5,17 @@ import { useFetcher } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { cn } from "~/utils/cn";
+import { Filter } from "./types";
 
-export function TodoItem({ todo }: { todo: SerializeFrom<Todo> }) {
+export function TodoItem({ todo, filter }: TodoItemProps) {
   const toggleFetcher = useFetcher();
   const deleteFetcher = useFetcher();
+
+  const shouldRender =
+    filter === "all" ||
+    (filter === "completed" && todo.completed) ||
+    (filter === "active" && !todo.completed);
+  if (!shouldRender) return null;
 
   const toggleFormId = `toggle-form-${todo.id}`;
   const deleteFormId = `delete-form-${todo.id}`;
@@ -56,4 +63,9 @@ export function TodoItem({ todo }: { todo: SerializeFrom<Todo> }) {
       </div>
     </>
   );
+}
+
+interface TodoItemProps {
+  todo: SerializeFrom<Todo>;
+  filter: Filter;
 }

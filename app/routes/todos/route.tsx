@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData, useLocation } from "@remix-run/react";
 import { Fragment } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -9,13 +9,22 @@ import {
   CardHeader,
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+import { Toggle } from "~/components/ui/toggle";
 import { prisma } from "~/services/database.server";
 import { TodoItem } from "./todo-item";
+import { Filter } from "./types";
 
 export default function Todos() {
   const { todos, itemsLeft } = useLoaderData<typeof loader>();
+  const location = useLocation();
   const createFetcher = useFetcher();
+  const clearCompletedFetcher = useFetcher();
+
+  const filter: Filter = location.pathname.endsWith("/completed")
+    ? "completed"
+    : location.pathname.endsWith("/active")
+    ? "active"
+    : "all";
 
   return (
     <div className="container max-w-screen-2xl">
@@ -34,7 +43,7 @@ export default function Todos() {
           <div className="grid gap-2">
             {todos.map((todo) => (
               <Fragment key={`todo-${todo.id}`}>
-                <TodoItem todo={todo} />
+                <TodoItem todo={todo} filter={filter} />
               </Fragment>
             ))}
           </div>
@@ -42,12 +51,26 @@ export default function Todos() {
         <CardFooter>
           <div className="flex flex-1 items-center justify-between">
             <span>{itemsLeft} items left!</span>
-            <ToggleGroup type="single">
-              <ToggleGroupItem value="all">All</ToggleGroupItem>
-              <ToggleGroupItem value="active">Active</ToggleGroupItem>
-              <ToggleGroupItem value="completed">Completed</ToggleGroupItem>
-            </ToggleGroup>
-            <Button variant="ghost">Clear completed</Button>
+            <Toggle pressed={location.pathname.endsWith("/todos")} asChild>
+              <Link to="." prefetch="render">
+                All
+              </Link>
+            </Toggle>
+            <Toggle pressed={location.pathname.endsWith("/active")} asChild>
+              <Link to="active" prefetch="render">
+                Active
+              </Link>
+            </Toggle>
+            <Toggle pressed={location.pathname.endsWith("/completed")} asChild>
+              <Link to="completed" prefetch="render">
+                Completed
+              </Link>
+            </Toggle>
+            <clearCompletedFetcher.Form method="post">
+              <Button variant="ghost" name="intent" value="clearCompleted">
+                Clear completed
+              </Button>
+            </clearCompletedFetcher.Form>
           </div>
         </CardFooter>
       </Card>
@@ -58,6 +81,7 @@ export default function Todos() {
 export const loader = async () => {
   const todos = await prisma.todo.findMany();
   const itemsLeft = todos.filter((todo) => !todo.completed).length;
+
   return json({ todos, itemsLeft });
 };
 
@@ -84,9 +108,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       await prisma.todo.delete({ where: { id } });
       return new Response(undefined, { status: 204 });
     }
+    case "clearCompleted": {
+      await prisma.todo.deleteMany({ where: { completed: true } });
+      return new Response(undefined, { status: 204 });
+    }
     default:
       return new Response(undefined, { status: 422 });
   }
-
-  return null;
 };
