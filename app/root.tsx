@@ -6,7 +6,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import "./tailwind.css";
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { getUser } from "./services/session.server";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -34,6 +34,10 @@ export default function App() {
     </main>
   );
 }
+
+export const meta: MetaFunction = () => {
+  return [{ title: "Remix TodoMVC" }];
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
