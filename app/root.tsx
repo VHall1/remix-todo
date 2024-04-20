@@ -1,15 +1,19 @@
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import {
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
-import "./tailwind.css";
-import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { getUser } from "./services/session.server";
+import "./tailwind.css";
+import React from "react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { sha } = useLoaderData<typeof loader>();
+
   return (
     <html lang="en">
       <head>
@@ -19,6 +23,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="dark h-screen">
+        <div id="git-revision" className="hidden">
+          {sha}
+        </div>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -41,5 +48,5 @@ export const meta: MetaFunction = () => {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUser(request);
-  return json({ user });
+  return json({ user, sha: process.env.GIT_REVISION });
 };

@@ -1,0 +1,61 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Send discord notification
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\":null,\"embeds\":[{\"type\":\"rich\",\"description\":\"Started a new deploy $GITHUB_SHA to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":\"0x4a48bb\",\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}]}" $WEBHOOK_URL
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply pending migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Build remix
+        run: npm run build
+
+      - name: Check for existing pm2 processes and stop them
+        run: |
+          pm2 delete all || true
+
+      - name: Start Discord-bot and Remix apps
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          GIT_REVISION: ${{ GITHUB_SHA }}
+        run: |
+          pm2 start pm2.config.js
+
+      - name: Send discord notification
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\":null,\"embeds\":[{\"type\":\"rich\",\"description\":\"Successfully deployed $GITHUB_SHA to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":\"0x00eb4a\",\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}]}" $WEBHOOK_URL
+
+      - name: Cleanup
+        run: |
+          pm2 save
