@@ -38,11 +38,11 @@ jobs:
       - name: Build remix
         run: npm run build
 
-      - name: Check for existing pm2 processes and stop them
+      - name: Stop existing pm2 instances
         run: |
-          pm2 delete all || true
+          pm2 delete remix-todo || true
 
-      - name: Start Discord-bot and Remix apps
+      - name: Start pm2
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
