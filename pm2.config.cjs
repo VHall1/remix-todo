@@ -10,6 +10,7 @@ module.exports = {
         DATABASE_URL: process.env.DATABASE_URL,
         SESSION_SECRET: process.env.SESSION_SECRET,
         GIT_REVISION: process.env.GIT_REVISION,
+        PORT: process.env.PORT
       },
     },
   ],
