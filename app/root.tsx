@@ -30,7 +30,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div id="git-revision" className="hidden">
         {sha}
       </div>
-      {children}
+      <div className="h-screen">{children}</div>
       <ScrollRestoration />
       <Scripts />
     </>
