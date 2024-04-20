@@ -14,8 +14,10 @@ jobs:
 
     steps:
       - name: Send discord notification
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{\"content\": \"\",\"tts\": false,\"embeds\": [{\"type\": \"rich\",\"title\": \"\",\"description\": \"Started a new deploy $GITHUB_SHA to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\": \"0x00eb4a\",\"author\": {\"name\": \"$GITHUB_ACTOR\",\"url\": \"https://github.com/$GITHUB_ACTOR\",\"icon_url\": \"https://github.com/$GITHUB_ACTOR.png\"},\"footer\": {\"text\": \"$GITHUB_REPOSITORY\",\"icon_url\": \"https://github.com/github.png\"}}]}' ${{ secrets.WEBHOOK_URL }}
+          curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\":null,\"embeds\":[{\"type\":\"rich\",\"description\":\"Started a new deploy $GITHUB_SHA to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":\"0x4a48bb\",\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}]}" $WEBHOOK_URL
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,7 +54,7 @@ jobs:
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{\"content\":null,\"embeds\":[{\"type\":\"rich\",\"description\":\"Successfully deployed $GITHUB_SHA to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":\"0x00eb4a\",\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}]}' $WEBHOOK_URL
+          curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\":null,\"embeds\":[{\"type\":\"rich\",\"description\":\"Successfully deployed $GITHUB_SHA to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":\"0x00eb4a\",\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}]}" $WEBHOOK_URL
 
       - name: Cleanup
         run: |
