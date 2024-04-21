@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs } from "@remix-run/node";
 import {
   getThemeSession,
   themeKeys,
@@ -6,7 +6,7 @@ import {
   type Theme,
 } from "~/services/theme.server";
 
-export const action = async ({ request }: LoaderFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const theme = formData.get("theme");
 
