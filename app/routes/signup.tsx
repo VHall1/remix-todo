@@ -29,52 +29,56 @@ export default function Signup() {
   });
 
   return (
-    <Form method="post" id={form.id} onSubmit={form.onSubmit}>
-      <Card className="mx-auto max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">Sign Up</CardTitle>
-          <CardDescription>
-            Enter your information to create an account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor={fields.email.id}>Email</Label>
-              <Input
-                id={fields.email.id}
-                name={fields.email.name}
-                type="email"
-              />
-              <small className="text-destructive">{fields.email.errors}</small>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor={fields.password.id}>Password</Label>
-              <Input
-                id={fields.password.id}
-                name={fields.password.name}
-                type="password"
-              />
-              <small className="text-destructive">
-                {fields.password.errors}
+    <div className="pt-12">
+      <Form method="post" id={form.id} onSubmit={form.onSubmit}>
+        <Card className="mx-auto max-w-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">Sign Up</CardTitle>
+            <CardDescription>
+              Enter your information to create an account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor={fields.email.id}>Email</Label>
+                <Input
+                  id={fields.email.id}
+                  name={fields.email.name}
+                  type="email"
+                />
+                <small className="text-destructive">
+                  {fields.email.errors}
+                </small>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor={fields.password.id}>Password</Label>
+                <Input
+                  id={fields.password.id}
+                  name={fields.password.name}
+                  type="password"
+                />
+                <small className="text-destructive">
+                  {fields.password.errors}
+                </small>
+              </div>
+              <Button type="submit" className="w-full">
+                Create an account
+              </Button>
+              <small className="text-destructive text-center">
+                {form.errors}
               </small>
             </div>
-            <Button type="submit" className="w-full">
-              Create an account
-            </Button>
-            <small className="text-destructive text-center">
-              {form.errors}
-            </small>
-          </div>
-          <div className="mt-4 text-center text-sm">
-            Already have an account?{" "}
-            <Link to="/login" className="underline">
-              Sign in
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </Form>
+            <div className="mt-4 text-center text-sm">
+              Already have an account?{" "}
+              <Link to="/login" className="underline">
+                Sign in
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </Form>
+    </div>
   );
 }
 
