@@ -11,7 +11,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Toggle } from "~/components/ui/toggle";
 import { prisma } from "~/services/database.server";
-import { requireUserId } from "~/services/session.server";
+import { requireUser } from "~/services/session.server";
 import { TodoItem } from "./todo-item";
 import { Filter } from "./types";
 
@@ -81,7 +81,7 @@ export default function Todos() {
 
 // TODO: add pagination
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const userId = await requireUserId(request);
+  const { id: userId } = await requireUser(request);
   const todos = await prisma.todo.findMany({ where: { userId } });
   const itemsLeft = await prisma.todo.count({
     where: { userId, completed: false },
@@ -91,7 +91,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const userId = await requireUserId(request);
+  const { id: userId } = await requireUser(request);
   const formData = await request.formData();
 
   const intent = formData.get("intent");

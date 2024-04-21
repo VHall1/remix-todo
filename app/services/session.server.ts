@@ -33,16 +33,8 @@ export async function getUser(request: Request) {
   return prisma.user.findUnique({ where: { id: userId } });
 }
 
-export async function requireUserId(request: Request): Promise<string> {
-  const userId = await getUserId(request);
-  if (!userId) {
-    throw redirect("/login");
-  }
-  return userId;
-}
-
 export async function requireUser(request: Request) {
-  const userId = await requireUserId(request);
+  const userId = await getUserId(request);
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     const logoutResponse = await logout(request);
@@ -69,5 +61,3 @@ export async function logout(request: Request) {
     },
   });
 }
-
-
