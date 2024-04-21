@@ -1,10 +1,19 @@
-import { DiscIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import {
+  DiscIcon,
+  GitHubLogoIcon,
+  MoonIcon,
+  SunIcon,
+} from "@radix-ui/react-icons";
 import { Link } from "@remix-run/react";
-import { Button } from "./ui/button";
 import { useTheme } from "~/hooks/use-theme";
+import { useUser } from "~/hooks/use-user";
+import { Button } from "./ui/button";
 
 export function Navbar() {
+  // TODO: use fetcher forms instead of onClick for these
+  // so they can still work without javascript enabled
   const { theme, setTheme } = useTheme();
+  const { user, logout } = useUser();
 
   let ThemeIcon = <MoonIcon className="w-5 h-5" />;
   if (theme === "light") {
@@ -18,7 +27,14 @@ export function Navbar() {
           <DiscIcon className="w-6 h-6 mr-1.5" />
           TodoMVC
         </Link>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          >
+            <GitHubLogoIcon className="w-5 h-5" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -26,6 +42,15 @@ export function Navbar() {
           >
             {ThemeIcon}
           </Button>
+          {user ? (
+            <Button variant="ghost" onClick={() => logout()}>
+              Logout
+            </Button>
+          ) : (
+            <Button variant="ghost" asChild>
+              <Link to="/login">Log in</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
