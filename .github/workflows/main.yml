@@ -13,14 +13,11 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - name: Set outputs
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Send discord notification
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
-          curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\":\"\",\"tts\":false,\"embeds\":[{\"description\":\"Started a new deploy `${{ steps.vars.outputs.sha_short }}` to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":2326507,\"fields\":[],\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}],\"components\":[],\"actions\":{}}" $WEBHOOK_URL
+          curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\":\"\",\"tts\":false,\"embeds\":[{\"description\":\"Started a new deploy to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":2326507,\"fields\":[],\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}],\"components\":[],\"actions\":{}}" $WEBHOOK_URL
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -58,7 +55,7 @@ jobs:
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
-          curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\":\"\",\"tts\":false,\"embeds\":[{\"description\":\"Successfully deployed `${{ steps.vars.outputs.sha_short }}` to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":65280,\"fields\":[],\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}],\"components\":[],\"actions\":{}}" $WEBHOOK_URL
+          curl -i -H "Accept: application/json" -H "Content-Type:application/json" -X POST --data "{\"content\":\"\",\"tts\":false,\"embeds\":[{\"description\":\"Successfully deployed to [$GITHUB_REPOSITORY](https://github.com/$GITHUB_REPOSITORY)\",\"color\":65280,\"fields\":[],\"author\":{\"name\":\"$GITHUB_ACTOR\",\"url\":\"https://github.com/$GITHUB_ACTOR\",\"icon_url\":\"https://github.com/$GITHUB_ACTOR.png\"},\"footer\":{\"text\":\"$GITHUB_REPOSITORY\",\"icon_url\":\"https://github.com/github.png\"}}],\"components\":[],\"actions\":{}}" $WEBHOOK_URL
 
       - name: Cleanup
         run: |
