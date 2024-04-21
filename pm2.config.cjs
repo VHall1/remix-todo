@@ -9,8 +9,9 @@ module.exports = {
       env: {
         DATABASE_URL: process.env.DATABASE_URL,
         SESSION_SECRET: process.env.SESSION_SECRET,
+        THEME_SECRET: process.env.THEME_SECRET,
         GIT_REVISION: process.env.GIT_REVISION,
-        PORT: process.env.PORT
+        PORT: process.env.PORT,
       },
     },
   ],

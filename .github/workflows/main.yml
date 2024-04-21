@@ -46,6 +46,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          THEME_SECRET: ${{ secrets.THEME_SECRET }}
           GIT_REVISION: ${{ github.SHA }}
           PORT: ${{ secrets.PORT }}
         run: |
