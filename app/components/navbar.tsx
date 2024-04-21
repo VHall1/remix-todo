@@ -28,12 +28,10 @@ export function Navbar() {
           TodoMVC
         </Link>
         <div className="ml-auto flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          >
-            <GitHubLogoIcon className="w-5 h-5" />
+          <Button variant="ghost" size="icon" asChild>
+            <a href="https://github.com/vhall1/remix-todo">
+              <GitHubLogoIcon className="w-5 h-5" />
+            </a>
           </Button>
           <Button
             variant="ghost"
