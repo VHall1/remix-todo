@@ -5,6 +5,7 @@ import {
   themeStorage,
   type Theme,
 } from "~/services/theme.server";
+import { safeRedirect } from "~/utils/http.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -17,8 +18,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const session = await getThemeSession(request);
   session.set("theme", typedTheme);
-  return new Response(undefined, {
-    headers: { "Set-Cookie": await themeStorage.commitSession(session) },
-    status: 204,
+  return safeRedirect(formData.get("returnTo"), {
+    headers: {
+      "Set-Cookie": await themeStorage.commitSession(session),
+    },
   });
 };

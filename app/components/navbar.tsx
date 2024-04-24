@@ -5,15 +5,13 @@ import {
   SunIcon,
 } from "@radix-ui/react-icons";
 import { Link } from "@remix-run/react";
-import { useTheme } from "~/hooks/use-theme";
-import { useUser } from "~/hooks/use-user";
+import { ThemeForm, useTheme } from "~/utils/theme";
+import { LogoutForm, useUser } from "~/utils/user";
 import { Button } from "./ui/button";
 
 export function Navbar() {
-  // TODO: use fetcher forms instead of onClick for these
-  // so they can still work without javascript enabled
-  const { theme, setTheme } = useTheme();
-  const { user, logout } = useUser();
+  const theme = useTheme();
+  const user = useUser();
 
   let ThemeIcon = <MoonIcon className="w-5 h-5" />;
   if (theme === "light") {
@@ -33,17 +31,22 @@ export function Navbar() {
               <GitHubLogoIcon className="w-5 h-5" />
             </a>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          >
-            {ThemeIcon}
-          </Button>
-          {user ? (
-            <Button variant="ghost" onClick={() => logout()}>
-              Logout
+          <ThemeForm>
+            <input
+              type="hidden"
+              name="theme"
+              value={theme === "light" ? "dark" : "light"}
+            />
+            <Button variant="ghost" size="icon" type="submit">
+              {ThemeIcon}
             </Button>
+          </ThemeForm>
+          {user ? (
+            <LogoutForm>
+              <Button variant="ghost" type="submit">
+                Logout
+              </Button>
+            </LogoutForm>
           ) : (
             <Button variant="ghost" asChild>
               <Link to="/login">Log in</Link>
