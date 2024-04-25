@@ -10,6 +10,7 @@ import {
   CardHeader,
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
+import { Separator } from "~/components/ui/separator";
 import { Toggle } from "~/components/ui/toggle";
 import { prisma } from "~/services/database.server";
 import { requireUser } from "~/services/session.server";
@@ -47,6 +48,7 @@ export default function Todos() {
               {todos.map((todo) => (
                 <Fragment key={`todo-${todo.id}`}>
                   <TodoItem todo={todo} filter={filter} />
+                  <Separator className="my-1" />
                 </Fragment>
               ))}
             </div>
@@ -54,24 +56,28 @@ export default function Todos() {
           <CardFooter>
             <div className="flex flex-1 items-center justify-between">
               <span>{itemsLeft} items left!</span>
-              <Toggle pressed={location.pathname.endsWith("/todos")} asChild>
-                <Link to="." prefetch="render">
-                  All
-                </Link>
-              </Toggle>
-              <Toggle pressed={location.pathname.endsWith("/active")} asChild>
-                <Link to="active" prefetch="render">
-                  Active
-                </Link>
-              </Toggle>
-              <Toggle
-                pressed={location.pathname.endsWith("/completed")}
-                asChild
-              >
-                <Link to="completed" prefetch="render">
-                  Completed
-                </Link>
-              </Toggle>
+
+              <div>
+                <Toggle pressed={location.pathname.endsWith("/todos")} asChild>
+                  <Link to="." prefetch="render">
+                    All
+                  </Link>
+                </Toggle>
+                <Toggle pressed={location.pathname.endsWith("/active")} asChild>
+                  <Link to="active" prefetch="render">
+                    Active
+                  </Link>
+                </Toggle>
+                <Toggle
+                  pressed={location.pathname.endsWith("/completed")}
+                  asChild
+                >
+                  <Link to="completed" prefetch="render">
+                    Completed
+                  </Link>
+                </Toggle>
+              </div>
+
               <clearCompletedFetcher.Form method="post">
                 <Button variant="ghost" name="intent" value="clearCompleted">
                   Clear completed
