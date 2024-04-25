@@ -11,7 +11,7 @@ export const ThemeForm = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   const fetcher = useFetcher();
   return (
-    <fetcher.Form action="/set-theme" method="post">
+    <fetcher.Form action="/set-theme" method="post" preventScrollReset>
       <input
         type="hidden"
         name="returnTo"
