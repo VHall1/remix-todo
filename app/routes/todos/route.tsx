@@ -91,7 +91,6 @@ export default function Todos() {
   );
 }
 
-// TODO: add pagination
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { id: userId } = await requireUser(request);
   const todos = await prisma.todo.findMany({ where: { userId } });
