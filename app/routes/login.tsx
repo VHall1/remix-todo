@@ -24,7 +24,6 @@ export default function Login() {
     onValidate({ formData }) {
       return parseWithZod(formData, { schema });
     },
-    shouldValidate: "onBlur",
   });
 
   return (
