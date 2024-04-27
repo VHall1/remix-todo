@@ -57,7 +57,7 @@ export function TodoItem({ todo, filter }: TodoItemProps) {
           type="submit"
           form={toggleFormId}
         />
-        {todo.content}
+        {todo.title}
       </label>
 
       <DropdownMenu>
