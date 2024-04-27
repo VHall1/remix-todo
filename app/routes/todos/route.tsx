@@ -10,6 +10,14 @@ import {
   CardHeader,
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import { Toggle } from "~/components/ui/toggle";
 import { prisma } from "~/services/database.server";
@@ -36,56 +44,97 @@ export default function Todos() {
           Todos
         </h1>
 
-        <Card className="md:max-w-xl mx-auto mt-6">
-          <CardHeader>
-            <createFetcher.Form method="post">
-              <input type="hidden" name="intent" value="create" />
-              <Input placeholder="What needs to be done?" name="content" />
-            </createFetcher.Form>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-2">
-              {todos.map((todo) => (
-                <Fragment key={`todo-${todo.id}`}>
-                  <TodoItem todo={todo} filter={filter} />
-                  <Separator className="my-1" />
-                </Fragment>
-              ))}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <div className="flex flex-1 items-center justify-between">
-              <span>{itemsLeft} items left!</span>
+        <div className="md:max-w-xl mx-auto mt-6">
+          <Card>
+            <CardHeader>
+              <createFetcher.Form method="post">
+                <input type="hidden" name="intent" value="create" />
+                <Input placeholder="What needs to be done?" name="title" />
+              </createFetcher.Form>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2">
+                {todos.map((todo) => (
+                  <Fragment key={`todo-${todo.id}`}>
+                    <TodoItem todo={todo} filter={filter} />
+                    <Separator className="my-1" />
+                  </Fragment>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <div className="flex flex-1 items-center justify-between">
+                <span>{itemsLeft} items left!</span>
 
-              <div>
-                <Toggle pressed={location.pathname.endsWith("/todos")} asChild>
+                <div>
+                  <Toggle
+                    pressed={location.pathname.endsWith("/todos")}
+                    asChild
+                  >
+                    <Link to="." prefetch="render">
+                      All
+                    </Link>
+                  </Toggle>
+                  <Toggle
+                    pressed={location.pathname.endsWith("/active")}
+                    asChild
+                  >
+                    <Link to="active" prefetch="render">
+                      Active
+                    </Link>
+                  </Toggle>
+                  <Toggle
+                    pressed={location.pathname.endsWith("/completed")}
+                    asChild
+                  >
+                    <Link to="completed" prefetch="render">
+                      Completed
+                    </Link>
+                  </Toggle>
+                </div>
+
+                <clearCompletedFetcher.Form method="post">
+                  <Button variant="ghost" name="intent" value="clearCompleted">
+                    Clear completed
+                  </Button>
+                </clearCompletedFetcher.Form>
+              </div>
+            </CardFooter>
+          </Card>
+          <Select value="true">
+            <SelectTrigger className="w-[180px] mt-3 ml-auto border-dashed">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem
+                  value={String(location.pathname.endsWith("/todos"))}
+                  // asChild
+                >
                   <Link to="." prefetch="render">
                     All
                   </Link>
-                </Toggle>
-                <Toggle pressed={location.pathname.endsWith("/active")} asChild>
+                </SelectItem>
+                <SelectItem
+                  value={String(location.pathname.endsWith("/active"))}
+                  // asChild
+                >
                   <Link to="active" prefetch="render">
                     Active
                   </Link>
-                </Toggle>
-                <Toggle
-                  pressed={location.pathname.endsWith("/completed")}
-                  asChild
+                </SelectItem>
+                <SelectItem
+                  value={String(location.pathname.endsWith("/completed"))}
+                  // asChild
                 >
                   <Link to="completed" prefetch="render">
                     Completed
                   </Link>
-                </Toggle>
-              </div>
-
-              <clearCompletedFetcher.Form method="post">
-                <Button variant="ghost" name="intent" value="clearCompleted">
-                  Clear completed
-                </Button>
-              </clearCompletedFetcher.Form>
-            </div>
-          </CardFooter>
-        </Card>
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </Shell>
   );
@@ -116,8 +165,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return json({ todo });
     }
     case "create": {
-      const content = formData.get("content")?.toString() || "";
-      const todo = await prisma.todo.create({ data: { userId, content } });
+      const title = formData.get("title")?.toString() || "";
+      const todo = await prisma.todo.create({ data: { userId, title } });
       return json({ todo }, 201);
     }
     case "delete": {
