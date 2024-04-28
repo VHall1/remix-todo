@@ -20,7 +20,7 @@ import {
 } from "~/components/ui/drawer";
 import { Input } from "~/components/ui/input";
 import { useIsDesktop } from "~/hooks/use-is-desktop";
-import { action, schema } from "~/routes/todo.new";
+import { action, schema } from "~/routes/todos.new";
 
 export function NewForm({
   open,
@@ -101,7 +101,7 @@ function InternalForm({
     <>
       <fetcher.Form
         method="post"
-        action="/todo/new"
+        action="/todos/new"
         id={form.id}
         onSubmit={form.onSubmit}
       />
