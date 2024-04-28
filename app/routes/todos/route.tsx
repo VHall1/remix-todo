@@ -6,7 +6,6 @@ import {
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData, useLocation } from "@remix-run/react";
 import * as React from "react";
-import { Fragment } from "react";
 import { Shell } from "~/components/shell";
 import { Button } from "~/components/ui/button";
 import {
@@ -14,7 +13,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { Separator } from "~/components/ui/separator";
 import { prisma } from "~/services/database.server";
 import { requireUser } from "~/services/session.server";
 import { NewForm } from "./new-form";
@@ -34,8 +32,8 @@ export default function Todos() {
 
   return (
     <Shell>
-      <div className="container md:max-w-xl">
-        <div className="flex items-center sticky top-[calc(3.5rem+1px)] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container max-w-xl">
+        <div className="flex items-center">
           <h1 className="text-3xl font-semibold tracking-tight">Todos</h1>
           <div className="ml-auto flex items-center gap-3">
             <Popover>
@@ -85,12 +83,9 @@ export default function Todos() {
           </div>
         </div>
 
-        <div className="py-6 grid gap-2">
+        <div className="pt-6 pb-3 grid gap-2">
           {todos.map((todo) => (
-            <Fragment key={`todo-${todo.id}`}>
-              <TodoItem todo={todo} filter={filter} />
-              <Separator className="my-1" />
-            </Fragment>
+            <TodoItem todo={todo} filter={filter} key={`todo-${todo.id}`} />
           ))}
         </div>
       </div>
