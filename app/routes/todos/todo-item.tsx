@@ -4,14 +4,14 @@ import { SerializeFrom } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
-import { cn } from "~/utils/cn";
-import { Filter } from "./types";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { cn } from "~/utils/cn";
+import { Filter } from "./types";
 
 export function TodoItem({ todo, filter }: TodoItemProps) {
   const toggleFetcher = useFetcher();
