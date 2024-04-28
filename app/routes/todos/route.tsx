@@ -1,35 +1,30 @@
+import {
+  CheckIcon,
+  MixerHorizontalIcon,
+  PlusIcon,
+} from "@radix-ui/react-icons";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useLocation } from "@remix-run/react";
+import { Link, useLoaderData, useLocation } from "@remix-run/react";
+import * as React from "react";
 import { Fragment } from "react";
 import { Shell } from "~/components/shell";
 import { Button } from "~/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 import { Separator } from "~/components/ui/separator";
-import { Toggle } from "~/components/ui/toggle";
 import { prisma } from "~/services/database.server";
 import { requireUser } from "~/services/session.server";
+import { NewForm } from "./new-form";
 import { TodoItem } from "./todo-item";
 import { Filter } from "./types";
 
 export default function Todos() {
-  const { todos, itemsLeft } = useLoaderData<typeof loader>();
+  const [open, setOpen] = React.useState(false);
+  const { todos } = useLoaderData<typeof loader>();
   const location = useLocation();
-  const createFetcher = useFetcher();
-  const clearCompletedFetcher = useFetcher();
 
   const filter: Filter = location.pathname.endsWith("/completed")
     ? "completed"
@@ -39,103 +34,68 @@ export default function Todos() {
 
   return (
     <Shell>
-      <div className="container max-w-screen-2xl">
-        <h1 className="text-center text-3xl font-semibold tracking-tight">
-          Todos
-        </h1>
-
-        <div className="md:max-w-xl mx-auto mt-6">
-          <Card>
-            <CardHeader>
-              <createFetcher.Form method="post">
-                <input type="hidden" name="intent" value="create" />
-                <Input placeholder="What needs to be done?" name="title" />
-              </createFetcher.Form>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2">
-                {todos.map((todo) => (
-                  <Fragment key={`todo-${todo.id}`}>
-                    <TodoItem todo={todo} filter={filter} />
-                    <Separator className="my-1" />
-                  </Fragment>
-                ))}
-              </div>
-            </CardContent>
-            <CardFooter>
-              <div className="flex flex-1 items-center justify-between">
-                <span>{itemsLeft} items left!</span>
-
-                <div>
-                  <Toggle
-                    pressed={location.pathname.endsWith("/todos")}
-                    asChild
-                  >
-                    <Link to="." prefetch="render">
-                      All
-                    </Link>
-                  </Toggle>
-                  <Toggle
-                    pressed={location.pathname.endsWith("/active")}
-                    asChild
-                  >
-                    <Link to="active" prefetch="render">
-                      Active
-                    </Link>
-                  </Toggle>
-                  <Toggle
-                    pressed={location.pathname.endsWith("/completed")}
-                    asChild
-                  >
-                    <Link to="completed" prefetch="render">
-                      Completed
-                    </Link>
-                  </Toggle>
-                </div>
-
-                <clearCompletedFetcher.Form method="post">
-                  <Button variant="ghost" name="intent" value="clearCompleted">
-                    Clear completed
-                  </Button>
-                </clearCompletedFetcher.Form>
-              </div>
-            </CardFooter>
-          </Card>
-          <Select value="true">
-            <SelectTrigger className="w-[180px] mt-3 ml-auto border-dashed">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem
-                  value={String(location.pathname.endsWith("/todos"))}
-                  // asChild
+      <div className="container md:max-w-xl">
+        <div className="flex items-center sticky top-[calc(3.5rem+1px)] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <h1 className="text-3xl font-semibold tracking-tight">Todos</h1>
+          <div className="ml-auto flex items-center gap-3">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="border-dashed">
+                  <MixerHorizontalIcon className="h-4 w-4 md:mr-1.5" />
+                  <span className="hidden md:inline">Filters</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="grid">
+                <Link
+                  to="."
+                  prefetch="render"
+                  className="flex items-center gap-2 py-1.5"
                 >
-                  <Link to="." prefetch="render">
-                    All
-                  </Link>
-                </SelectItem>
-                <SelectItem
-                  value={String(location.pathname.endsWith("/active"))}
-                  // asChild
+                  {location.pathname.endsWith("/todos") ? (
+                    <CheckIcon className="w-4 h-4" />
+                  ) : null}
+                  All
+                </Link>
+                <Link
+                  to="active"
+                  prefetch="render"
+                  className="flex items-center gap-2 py-1.5"
                 >
-                  <Link to="active" prefetch="render">
-                    Active
-                  </Link>
-                </SelectItem>
-                <SelectItem
-                  value={String(location.pathname.endsWith("/completed"))}
-                  // asChild
+                  {location.pathname.endsWith("/active") ? (
+                    <CheckIcon className="w-4 h-4" />
+                  ) : null}
+                  Active
+                </Link>
+                <Link
+                  to="completed"
+                  prefetch="render"
+                  className="flex items-center gap-2 py-1.5"
                 >
-                  <Link to="completed" prefetch="render">
-                    Completed
-                  </Link>
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+                  {location.pathname.endsWith("/completed") ? (
+                    <CheckIcon className="w-4 h-4" />
+                  ) : null}
+                  Completed
+                </Link>
+              </PopoverContent>
+            </Popover>
+            <Button size="sm" onClick={() => setOpen(true)}>
+              <PlusIcon className="h-4 w-4 md:mr-1.5" />
+              <span className="hidden md:inline">New todo</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="py-6 grid gap-2">
+          {todos.map((todo) => (
+            <Fragment key={`todo-${todo.id}`}>
+              <TodoItem todo={todo} filter={filter} />
+              <Separator className="my-1" />
+            </Fragment>
+          ))}
         </div>
       </div>
+
+      <NewForm open={open} setOpen={setOpen} />
     </Shell>
   );
 }
@@ -143,11 +103,7 @@ export default function Todos() {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { id: userId } = await requireUser(request);
   const todos = await prisma.todo.findMany({ where: { userId } });
-  const itemsLeft = await prisma.todo.count({
-    where: { userId, completed: false },
-  });
-
-  return json({ todos, itemsLeft });
+  return json({ todos });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -172,10 +128,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     case "delete": {
       const id = formData.get("id")?.toString();
       await prisma.todo.delete({ where: { id, userId } });
-      return new Response(undefined, { status: 204 });
-    }
-    case "clearCompleted": {
-      await prisma.todo.deleteMany({ where: { userId, completed: true } });
       return new Response(undefined, { status: 204 });
     }
     default:
