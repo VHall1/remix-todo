@@ -1,27 +1,28 @@
+import {
+  CheckIcon,
+  MixerHorizontalIcon,
+  PlusIcon,
+} from "@radix-ui/react-icons";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useLocation } from "@remix-run/react";
-import { Fragment } from "react";
+import { Link, useLoaderData, useLocation } from "@remix-run/react";
+import * as React from "react";
 import { Shell } from "~/components/shell";
 import { Button } from "~/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Separator } from "~/components/ui/separator";
-import { Toggle } from "~/components/ui/toggle";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 import { prisma } from "~/services/database.server";
 import { requireUser } from "~/services/session.server";
+import { NewForm } from "./new-form";
 import { TodoItem } from "./todo-item";
 import { Filter } from "./types";
 
 export default function Todos() {
-  const { todos, itemsLeft } = useLoaderData<typeof loader>();
+  const [open, setOpen] = React.useState(false);
+  const { todos } = useLoaderData<typeof loader>();
   const location = useLocation();
-  const createFetcher = useFetcher();
-  const clearCompletedFetcher = useFetcher();
 
   const filter: Filter = location.pathname.endsWith("/completed")
     ? "completed"
@@ -31,62 +32,65 @@ export default function Todos() {
 
   return (
     <Shell>
-      <div className="container max-w-screen-2xl">
-        <h1 className="text-center text-3xl font-semibold tracking-tight">
-          Todos
-        </h1>
-
-        <Card className="md:max-w-xl mx-auto mt-6">
-          <CardHeader>
-            <createFetcher.Form method="post">
-              <input type="hidden" name="intent" value="create" />
-              <Input placeholder="What needs to be done?" name="content" />
-            </createFetcher.Form>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-2">
-              {todos.map((todo) => (
-                <Fragment key={`todo-${todo.id}`}>
-                  <TodoItem todo={todo} filter={filter} />
-                  <Separator className="my-1" />
-                </Fragment>
-              ))}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <div className="flex flex-1 items-center justify-between">
-              <span>{itemsLeft} items left!</span>
-
-              <div>
-                <Toggle pressed={location.pathname.endsWith("/todos")} asChild>
-                  <Link to="." prefetch="render">
-                    All
-                  </Link>
-                </Toggle>
-                <Toggle pressed={location.pathname.endsWith("/active")} asChild>
-                  <Link to="active" prefetch="render">
-                    Active
-                  </Link>
-                </Toggle>
-                <Toggle
-                  pressed={location.pathname.endsWith("/completed")}
-                  asChild
-                >
-                  <Link to="completed" prefetch="render">
-                    Completed
-                  </Link>
-                </Toggle>
-              </div>
-
-              <clearCompletedFetcher.Form method="post">
-                <Button variant="ghost" name="intent" value="clearCompleted">
-                  Clear completed
+      <div className="container max-w-xl">
+        <div className="flex items-center">
+          <h1 className="text-3xl font-semibold tracking-tight">Todos</h1>
+          <div className="ml-auto flex items-center gap-3">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="border-dashed">
+                  <MixerHorizontalIcon className="h-4 w-4 md:mr-1.5" />
+                  <span className="hidden md:inline">Filters</span>
                 </Button>
-              </clearCompletedFetcher.Form>
-            </div>
-          </CardFooter>
-        </Card>
+              </PopoverTrigger>
+              <PopoverContent className="grid">
+                <Link
+                  to="."
+                  prefetch="render"
+                  className="flex items-center gap-2 py-1.5"
+                >
+                  {location.pathname.endsWith("/todos") ? (
+                    <CheckIcon className="w-4 h-4" />
+                  ) : null}
+                  All
+                </Link>
+                <Link
+                  to="active"
+                  prefetch="render"
+                  className="flex items-center gap-2 py-1.5"
+                >
+                  {location.pathname.endsWith("/active") ? (
+                    <CheckIcon className="w-4 h-4" />
+                  ) : null}
+                  Active
+                </Link>
+                <Link
+                  to="completed"
+                  prefetch="render"
+                  className="flex items-center gap-2 py-1.5"
+                >
+                  {location.pathname.endsWith("/completed") ? (
+                    <CheckIcon className="w-4 h-4" />
+                  ) : null}
+                  Completed
+                </Link>
+              </PopoverContent>
+            </Popover>
+            <Button size="sm" onClick={() => setOpen(true)}>
+              <PlusIcon className="h-4 w-4 md:mr-1.5" />
+              <span className="hidden md:inline">New todo</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="pt-6 pb-3 grid gap-2">
+          {todos.map((todo) => (
+            <TodoItem todo={todo} filter={filter} key={`todo-${todo.id}`} />
+          ))}
+        </div>
       </div>
+
+      <NewForm open={open} setOpen={setOpen} />
     </Shell>
   );
 }
@@ -94,11 +98,7 @@ export default function Todos() {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { id: userId } = await requireUser(request);
   const todos = await prisma.todo.findMany({ where: { userId } });
-  const itemsLeft = await prisma.todo.count({
-    where: { userId, completed: false },
-  });
-
-  return json({ todos, itemsLeft });
+  return json({ todos });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -116,17 +116,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return json({ todo });
     }
     case "create": {
-      const content = formData.get("content")?.toString() || "";
-      const todo = await prisma.todo.create({ data: { userId, content } });
+      const title = formData.get("title")?.toString() || "";
+      const todo = await prisma.todo.create({ data: { userId, title } });
       return json({ todo }, 201);
     }
     case "delete": {
       const id = formData.get("id")?.toString();
       await prisma.todo.delete({ where: { id, userId } });
-      return new Response(undefined, { status: 204 });
-    }
-    case "clearCompleted": {
-      await prisma.todo.deleteMany({ where: { userId, completed: true } });
       return new Response(undefined, { status: 204 });
     }
     default:
