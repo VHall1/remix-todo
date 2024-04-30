@@ -6,7 +6,6 @@ import {
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData, useLocation } from "@remix-run/react";
 import * as React from "react";
-import { createTodo } from "~/actions/create-todo.server";
 import { Shell } from "~/components/shell";
 import { Button } from "~/components/ui/button";
 import {
@@ -87,7 +86,7 @@ export default function Todos() {
             </Button>
             <noscript>
               <Button size="sm" asChild>
-                <Link to="/todos/new">
+                <Link to="/todos/create">
                   <PlusIcon className="h-4 w-4 md:mr-1.5" />
                   <span className="hidden md:inline">New todo</span>
                 </Link>
@@ -128,19 +127,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       });
       return json({ todo });
     }
-    case "create": {
-      const { form, data } = await createTodo(formData, { userId });
-      if (!data) {
-        return json({ lastResult: form });
-      }
-      return json({ todo: data.todo, lastResult: form }, 201);
-    }
     case "delete": {
       const id = formData.get("id")?.toString();
       await prisma.todo.delete({ where: { id, userId } });
       return new Response(undefined, { status: 204 });
     }
     default:
-      return new Response(undefined, { status: 422 });
+      throw new Error("invalid intent value");
   }
 };
