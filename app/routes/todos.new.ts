@@ -1,23 +1,22 @@
-import { parseWithZod } from "@conform-to/zod";
-import { ActionFunctionArgs } from "@remix-run/node";
-import { z } from "zod";
-import { prisma } from "~/services/database.server";
+import { SubmissionResult } from "@conform-to/react";
+import { Todo } from "@prisma/client";
+import { ActionFunctionArgs, TypedResponse, json } from "@remix-run/node";
+import { createTodo } from "~/actions/create-todo.server";
 import { requireUser } from "~/services/session.server";
 
-export const schema = z.object({
-  title: z.string(),
-});
-
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({
+  request,
+}: ActionFunctionArgs): Promise<
+  TypedResponse<{
+    lastResult: SubmissionResult<string[]>;
+    todo?: Todo;
+  }>
+> => {
   const { id: userId } = await requireUser(request);
   const formData = await request.formData();
-  const submission = parseWithZod(formData, { schema });
-
-  if (submission.status !== "success") {
-    return submission.reply();
+  const { form, data } = await createTodo(formData, { userId });
+  if (!data) {
+    return json({ lastResult: form });
   }
-
-  const title = submission.value.title;
-  await prisma.todo.create({ data: { userId, title } });
-  return submission.reply();
+  return json({ todo: data.todo, lastResult: form }, 201);
 };

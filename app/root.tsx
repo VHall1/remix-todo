@@ -8,6 +8,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { ReactNode } from "react";
+import noscriptStyles from "./noscript.css?url";
 import { getUser } from "./services/session.server";
 import { getTheme } from "./services/theme.server";
 import "./tailwind.css";
@@ -21,6 +22,9 @@ export function Layout({ children }: { children: ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <noscript>
+          <link rel="stylesheet" href={noscriptStyles} />
+        </noscript>
         <Meta />
         <Links />
       </head>
