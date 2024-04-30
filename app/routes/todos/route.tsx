@@ -18,6 +18,7 @@ import { requireUser } from "~/services/session.server";
 import { NewForm } from "./new-form";
 import { TodoItem } from "./todo-item";
 import { Filter } from "./types";
+import { createTodo } from "~/actions/create-todo.server";
 
 export default function Todos() {
   const [open, setOpen] = React.useState(false);
@@ -76,10 +77,22 @@ export default function Todos() {
                 </Link>
               </PopoverContent>
             </Popover>
-            <Button size="sm" onClick={() => setOpen(true)}>
+            <Button
+              size="sm"
+              onClick={() => setOpen(true)}
+              className="noscript-hidden"
+            >
               <PlusIcon className="h-4 w-4 md:mr-1.5" />
               <span className="hidden md:inline">New todo</span>
             </Button>
+            <noscript>
+              <Button size="sm" asChild>
+                <Link to="/todos/new">
+                  <PlusIcon className="h-4 w-4 md:mr-1.5" />
+                  <span className="hidden md:inline">New todo</span>
+                </Link>
+              </Button>
+            </noscript>
           </div>
         </div>
 
@@ -116,9 +129,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return json({ todo });
     }
     case "create": {
-      const title = formData.get("title")?.toString() || "";
-      const todo = await prisma.todo.create({ data: { userId, title } });
-      return json({ todo }, 201);
+      const { form, data } = await createTodo(formData, { userId });
+      if (!data) {
+        return json({ lastResult: form });
+      }
+      return json({ todo: data.todo }, 201);
     }
     case "delete": {
       const id = formData.get("id")?.toString();

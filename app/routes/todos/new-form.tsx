@@ -2,6 +2,7 @@ import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { useFetcher } from "@remix-run/react";
 import { useEffect } from "react";
+import { schema } from "~/actions/create-todo";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -20,7 +21,7 @@ import {
 } from "~/components/ui/drawer";
 import { Input } from "~/components/ui/input";
 import { useIsDesktop } from "~/hooks/use-is-desktop";
-import { action, schema } from "~/routes/todos.new";
+import { action } from "./route";
 
 export function NewForm({
   open,
@@ -33,7 +34,7 @@ export function NewForm({
   const fetcher = useFetcher<typeof action>();
   const lastResult = fetcher.data;
   const [form, fields] = useForm({
-    lastResult,
+    lastResult: lastResult?.lastResult,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema });
     },
@@ -99,12 +100,8 @@ function InternalForm({
 }) {
   return (
     <>
-      <fetcher.Form
-        method="post"
-        action="/todos/new"
-        id={form.id}
-        onSubmit={form.onSubmit}
-      />
+      <fetcher.Form method="post" id={form.id} onSubmit={form.onSubmit} />
+      <input type="hidden" name="intent" value="create" form={form.id} />
       <div>{form.errors}</div>
       <Input
         placeholder="What needs to be done?"
