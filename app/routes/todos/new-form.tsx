@@ -32,9 +32,9 @@ export function NewForm({
 }) {
   const isDesktop = useIsDesktop();
   const fetcher = useFetcher<typeof action>();
-  const lastResult = fetcher.data;
+  const lastResult = fetcher.data?.lastResult
   const [form, fields] = useForm({
-    lastResult: lastResult?.lastResult,
+    lastResult,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema });
     },
