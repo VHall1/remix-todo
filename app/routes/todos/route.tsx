@@ -6,6 +6,7 @@ import {
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData, useLocation } from "@remix-run/react";
 import * as React from "react";
+import { createTodo } from "~/actions/create-todo.server";
 import { Shell } from "~/components/shell";
 import { Button } from "~/components/ui/button";
 import {
@@ -18,7 +19,6 @@ import { requireUser } from "~/services/session.server";
 import { NewForm } from "./new-form";
 import { TodoItem } from "./todo-item";
 import { Filter } from "./types";
-import { createTodo } from "~/actions/create-todo.server";
 
 export default function Todos() {
   const [open, setOpen] = React.useState(false);
@@ -133,7 +133,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       if (!data) {
         return json({ lastResult: form });
       }
-      return json({ todo: data.todo }, 201);
+      return json({ todo: data.todo, lastResult: form }, 201);
     }
     case "delete": {
       const id = formData.get("id")?.toString();
