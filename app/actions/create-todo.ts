@@ -12,7 +12,7 @@ export const createTodo = serverOnly$(
     const submission = parseWithZod(formData, { schema });
 
     if (submission.status !== "success") {
-      return { error: "failed form validation", form: submission.reply() };
+      return { form: submission.reply() };
     }
 
     const title = submission.value.title;
