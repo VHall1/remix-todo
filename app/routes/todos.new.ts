@@ -1,7 +1,7 @@
 import { SubmissionResult } from "@conform-to/react";
 import { Todo } from "@prisma/client";
 import { ActionFunctionArgs, TypedResponse, json } from "@remix-run/node";
-import { createTodo } from "~/actions/create-todo.server";
+import { createTodo } from "~/actions/create-todo";
 import { requireUser } from "~/services/session.server";
 
 export const action = async ({
