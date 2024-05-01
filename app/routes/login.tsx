@@ -31,14 +31,17 @@ export default function Login() {
 						<div className="grid gap-4">
 							<div className="grid gap-2">
 								<Label htmlFor={fields.email.id}>Email</Label>
-								<Input id={fields.email.id} name={fields.email.name} type="email" />
+								<Input id={fields.email.id} name={fields.email.name} type="email" autoComplete="email" />
 								<small className="text-destructive">{fields.email.errors}</small>
 							</div>
 							<div className="grid gap-2">
-								<div className="flex items-center">
-									<Label htmlFor={fields.password.id}>Password</Label>
-								</div>
-								<Input id={fields.password.id} name={fields.password.name} type="password" />
+								<Label htmlFor={fields.password.id}>Password</Label>
+								<Input
+									id={fields.password.id}
+									name={fields.password.name}
+									type="password"
+									autoComplete="current-password"
+								/>
 								<small className="text-destructive">{fields.password.errors}</small>
 							</div>
 							<Button type="submit" className="w-full">

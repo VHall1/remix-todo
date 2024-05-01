@@ -13,102 +13,93 @@ import { prisma } from "~/services/database.server";
 import { createUserSession } from "~/services/session.server";
 
 export default function Signup() {
-  const lastResult = useActionData<typeof action>();
-  const [form, fields] = useForm({
-    lastResult,
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema });
-    },
-  });
+	const lastResult = useActionData<typeof action>();
+	const [form, fields] = useForm({
+		lastResult,
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema });
+		},
+	});
 
-  return (
-    <div className="pt-12">
-      <Form method="post" id={form.id} onSubmit={form.onSubmit}>
-        <Card className="mx-auto max-w-sm">
-          <CardHeader>
-            <CardTitle className="text-xl">Sign Up</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor={fields.email.id}>Email</Label>
-                <Input
-                  id={fields.email.id}
-                  name={fields.email.name}
-                  type="email"
-                />
-                <small className="text-destructive">
-                  {fields.email.errors}
-                </small>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor={fields.password.id}>Password</Label>
-                <Input
-                  id={fields.password.id}
-                  name={fields.password.name}
-                  type="password"
-                />
-                <small className="text-destructive">
-                  {fields.password.errors}
-                </small>
-              </div>
-              <Button type="submit" className="w-full">
-                Create an account
-              </Button>
-              <small className="text-destructive text-center">
-                {form.errors}
-              </small>
-            </div>
-            <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
-              <Link to="/login" className="underline">
-                Sign in
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </Form>
-    </div>
-  );
+	return (
+		<div className="pt-12">
+			<Form method="post" id={form.id} onSubmit={form.onSubmit}>
+				<Card className="mx-auto max-w-sm">
+					<CardHeader>
+						<CardTitle className="text-xl">Sign Up</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="grid gap-4">
+							<div className="grid gap-2">
+								<Label htmlFor={fields.email.id}>Email</Label>
+								<Input id={fields.email.id} name={fields.email.name} type="email" autoComplete="email" />
+								<small className="text-destructive">{fields.email.errors}</small>
+							</div>
+							<div className="grid gap-2">
+								<Label htmlFor={fields.password.id}>Password</Label>
+								<Input
+									id={fields.password.id}
+									name={fields.password.name}
+									type="password"
+									autoComplete="new-password"
+								/>
+								<small className="text-destructive">{fields.password.errors}</small>
+							</div>
+							<Button type="submit" className="w-full">
+								Create an account
+							</Button>
+							<small className="text-destructive text-center">{form.errors}</small>
+						</div>
+						<div className="mt-4 text-center text-sm">
+							Already have an account?{" "}
+							<Link to="/login" className="underline">
+								Sign in
+							</Link>
+						</div>
+					</CardContent>
+				</Card>
+			</Form>
+		</div>
+	);
 }
 
 const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
+	email: z.string().email(),
+	password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const submission = parseWithZod(formData, { schema });
+	const formData = await request.formData();
+	const submission = parseWithZod(formData, { schema });
 
-  if (submission.status !== "success") {
-    return json(submission.reply());
-  }
+	if (submission.status !== "success") {
+		return json(submission.reply());
+	}
 
-  const { email, password } = submission.value;
-  const passwordHash = await hashPassword(password);
+	const { email, password } = submission.value;
+	const passwordHash = await hashPassword(password);
 
-  let user: User;
-  try {
-    user = await prisma.user.create({
-      data: { email, password: { create: { hash: passwordHash } } },
-    });
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-      // (Unique constraint failed)
-      // https://www.prisma.io/docs/orm/reference/error-reference#p2002
-    ) {
-      return json(
-        submission.reply({
-          formErrors: ["This email address is not available"],
-        })
-      );
-    }
+	let user: User;
+	try {
+		user = await prisma.user.create({
+			data: { email, password: { create: { hash: passwordHash } } },
+		});
+	} catch (error) {
+		if (
+			error instanceof Prisma.PrismaClientKnownRequestError &&
+			error.code === "P2002"
+			// (Unique constraint failed)
+			// https://www.prisma.io/docs/orm/reference/error-reference#p2002
+		) {
+			return json(
+				submission.reply({
+					formErrors: ["This email address is not available"],
+				}),
+			);
+		}
 
-    throw error;
-  }
+		throw error;
+	}
 
-  return createUserSession(request, user.id);
+	return createUserSession(request, user.id);
 };
