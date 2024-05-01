@@ -9,6 +9,7 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
+    "prepare": "husky install",
     "data-migration:add_user_todo_relation": "tsx ./prisma/migrations/20240420122937_add_user_todo_relation/data-migration.ts",
     "data-migration:add_title_to_todo": "tsx ./prisma/migrations/20240427184447_add_title_to_todo/data-migration.ts"
   },
@@ -57,7 +58,10 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
     "postcss": "^8.4.38",
+    "prettier": "^3.2.5",
     "prisma": "^5.12.1",
     "tailwindcss": "^3.4.3",
     "tsx": "^4.7.2",
@@ -68,5 +72,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": "npm run lint",
+    "*.{js,ts,tsx,css,md}": "prettier --write"
   }
 }
